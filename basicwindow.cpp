@@ -1,4 +1,7 @@
 #include "basicwindow.h"
+#include "CommonUtils.h"
+#include "NotifyManager.h"
+
 #include <QFile>
 #include <QStyleOption>
 #include <QPainter>
@@ -9,8 +12,10 @@
 BasicWindow::BasicWindow(QWidget *parent)
 	: QDialog(parent)
 {
+	m_colorBackground = CommonUtils::getDefaultSkinColor();
 	setWindowFlags(Qt::FramelessWindowHint);
 	setAttribute(Qt::WA_TranslucentBackground,true);
+	connect(NotifyManager::getInstance(), SIGNAL(signalSkinChanged(const QColor&)), this, SLOT(onSignalSkinChanged(const QColor&)));
 }
 
 BasicWindow::~BasicWindow()
