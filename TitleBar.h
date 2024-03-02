@@ -20,8 +20,8 @@ public:
 	TitleBar(QWidget *parent = nullptr);
 	~TitleBar();
 
-	void setTitleIcon(QString &filePath);			//设置标题栏图标
-	void setTitleContent(QString& titleContent);	//设置标题栏内容
+	void setTitleIcon(const QString &filePath);			//设置标题栏图标
+	void setTitleContent(const QString& titleContent);	//设置标题栏内容
 	void setTitleWidth(int width);					//设置标题栏长度
 	void setButtonType(ButtonType buttonType);		//设置标题栏按钮类型
 
