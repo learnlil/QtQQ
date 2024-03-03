@@ -203,7 +203,7 @@ void TitleBar::mousePressEvent(QMouseEvent* event)
 	return QWidget::mousePressEvent(event);
 }
 
-//
+//鼠标移动
 void TitleBar::mouseMoveEvent(QMouseEvent* event)
 {
 	if (m_isPressed)

@@ -160,7 +160,7 @@ void BasicWindow::mousePressEvent(QMouseEvent* e)
 	if (e->button() == Qt::LeftButton)
 	{
 		m_mousePressed = true;
-		m_mousePoint = e->globalPos() - pos();
+		m_mousePoint = e->globalPos() - pos();	//pos()事件发生时相对于窗口左上角(0,0)的偏移
 		accept();
 	}
 }
