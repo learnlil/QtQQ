@@ -1,3 +1,25 @@
 <RCC>
-    <qresource prefix="/"/>
+    <qresource prefix="/">
+        <file>Resources/QSS/Title.css</file>
+        <file>Resources/QSS/UserLogin.css</file>
+        <file>Resources/MainWindow/qqlogoclassic.png</file>
+        <file>Resources/MainWindow/checkbox_hightlight.png</file>
+        <file>Resources/MainWindow/checkbox_norma.png</file>
+        <file>Resources/MainWindow/checkbox_tick_hightlight.png</file>
+        <file>Resources/MainWindow/checkbox_tick_normal.png</file>
+        <file>Resources/MainWindow/girl.png</file>
+        <file>Resources/MainWindow/head_mask.png</file>
+        <file>Resources/MainWindow/Title/close.png</file>
+        <file>Resources/MainWindow/Title/close1.png</file>
+        <file>Resources/MainWindow/Title/close2.png</file>
+        <file>Resources/MainWindow/Title/max.png</file>
+        <file>Resources/MainWindow/Title/max1.png</file>
+        <file>Resources/MainWindow/Title/max2.png</file>
+        <file>Resources/MainWindow/Title/min.png</file>
+        <file>Resources/MainWindow/Title/min1.png</file>
+        <file>Resources/MainWindow/Title/min2.png</file>
+        <file>Resources/MainWindow/Title/restore.png</file>
+        <file>Resources/MainWindow/Title/restore1.png</file>
+        <file>Resources/MainWindow/Title/restore2.png</file>
+    </qresource>
 </RCC>

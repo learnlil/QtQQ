@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>UserLoginClass</class>
- <widget class="QWidget" name="UserLoginClass">
+ <class>UserLogin</class>
+ <widget class="QWidget" name="UserLogin">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -65,10 +65,10 @@
   <widget class="QWidget" name="bodyWidget" native="true">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>0</x>
      <y>104</y>
-     <width>418</width>
-     <height>200</height>
+     <width>434</width>
+     <height>216</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -278,7 +278,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="registBtn">
+       <widget class="QPushButton" name="registbtn">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>

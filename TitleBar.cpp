@@ -227,7 +227,7 @@ void TitleBar::mouseReleaseEvent(QMouseEvent* event)
 //加载样式表
 void TitleBar::loadStyleSheet(const QString& sheetName)
 {
-	QFile file(":/Resources/QSS" + sheetName + ".css");
+	QFile file(":/Resources/QSS/" + sheetName + ".css");
 	file.open(QFile::ReadOnly);
 	if (file.isOpen())
 	{

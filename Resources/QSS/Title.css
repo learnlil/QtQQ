@@ -1,0 +1,66 @@
+/*最小化按钮*/
+QPushButton#ButtonMin
+{
+    border-image:url(:Resources/MainWindow/Title/min.png);
+}
+
+QPushButton#ButtonMin:hover
+{
+    border-image:url(:Resources/MainWindow/Title/min1.png);
+}
+
+QPushButton#ButtonMin:pressed
+{
+    border-image:url(:Resources/MainWindow/Title/min2.png);
+}
+
+/*最大化按钮*/
+QPushButton#ButtonMax
+{
+    border-image:url(:Resources/MainWindow/Title/max.png);
+}
+
+QPushButton#ButtonMax:hover
+{
+    border-image:url(:Resources/MainWindow/Title/max1.png);
+}
+
+QPushButton#ButtonMax:pressed
+{
+    border-image:url(:Resources/MainWindow/Title/max2.png);
+}
+
+/*还原按钮*/
+QPushButton#ButtonRestore
+{
+    border-image:url(:Resources/MainWindow/Title/restore.png);
+}
+
+QPushButton#ButtonRestore:hover
+{
+    border-image:url(:Resources/MainWindow/Title/restore1.png);
+}
+
+QPushButton#ButtonRestore:pressed
+{
+    border-image:url(:Resources/MainWindow/Title/restore2.png);
+}
+
+/*关闭按钮*/
+QPushButton#ButtonClose
+{
+    border-image:url(:Resources/MainWindow/Title/close.png);
+    border-top-right-radius: 4;
+}
+
+QPushButton#ButtonClose:hover
+{
+    border-image:url(:Resources/MainWindow/Title/close1.png);
+    border-top-right-radius: 4;
+}
+
+QPushButton#ButtonClose:pressed 
+{
+    border-image:url(:Resources/MainWindow/Title/close2.png);
+    border-top-right-radius: 4;
+}

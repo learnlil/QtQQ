@@ -17,5 +17,5 @@ private slots:
 private:
 	void initControl();
 private:
-	Ui::UserLoginClass ui;
+	Ui::UserLogin ui;
 };

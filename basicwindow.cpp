@@ -102,7 +102,7 @@ QPixmap BasicWindow::getRoundImage(const QPixmap& src, QPixmap& mask, QSize mask
 	}
 	else
 	{
-		mask.scaled(maskSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+		mask = mask.scaled(maskSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 	}
 	//保存转换后的图像
 	QImage resultImage(maskSize, QImage::Format_ARGB32_Premultiplied);
@@ -112,7 +112,7 @@ QPixmap BasicWindow::getRoundImage(const QPixmap& src, QPixmap& mask, QSize mask
 	painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
 	painter.drawPixmap(0, 0, mask);
 	painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
-	painter.drawPixmap(0, 0, src.scaled(Qt::KeepAspectRatio, Qt::SmoothTransformation));
+	painter.drawPixmap(0, 0, src.scaled(maskSize,Qt::KeepAspectRatio, Qt::SmoothTransformation));
 	painter.end();
 
 	return QPixmap::fromImage(resultImage);
