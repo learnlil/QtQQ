@@ -14,7 +14,7 @@ public:
     void setUserName(const QString& username);
     void setLevelPixmap(int level);
     void setHeadPixmap(const QString& headPath);
-
+    void setStatusMenuIcon(const QString& statusPath);
 private:
     Ui::CCMainwindowClass ui;
 };
