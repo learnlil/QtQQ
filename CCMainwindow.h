@@ -15,6 +15,10 @@ public:
     void setLevelPixmap(int level);
     void setHeadPixmap(const QString& headPath);
     void setStatusMenuIcon(const QString& statusPath);
+    //添加应用部件
+    QWidget* addOtherAppExtension(const QString& appPath, const QString& appName);
+private slots:
+    void onAppIconClicked();
 private:
     Ui::CCMainwindowClass ui;
 };

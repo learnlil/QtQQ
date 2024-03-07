@@ -55,6 +55,9 @@
     <ClCompile Include="UserLogin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SkinWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="TitleBar.h">
@@ -69,6 +72,9 @@
     <QtMoc Include="UserLogin.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="SkinWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonUtils.h">
@@ -77,6 +83,9 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="UserLogin.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="SkinWindow.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>
