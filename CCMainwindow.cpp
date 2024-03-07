@@ -36,3 +36,16 @@ void CCMainwindow::initControl()
     ui.treeWidget->setStyle(new CustomProxyStyle);
 
 }
+
+void CCMainwindow::setUserName(const QString& username)
+{
+}
+
+void CCMainwindow::setLevelPixmap(int level)
+{
+
+}
+
+void CCMainwindow::setHeadPixmap(const QString& headPath)
+{
+}

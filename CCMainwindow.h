@@ -11,7 +11,10 @@ public:
     CCMainwindow(QWidget *parent = nullptr);
     ~CCMainwindow();
     void initControl();
-    
+    void setUserName(const QString& username);
+    void setLevelPixmap(int level);
+    void setHeadPixmap(const QString& headPath);
+
 private:
     Ui::CCMainwindowClass ui;
 };
