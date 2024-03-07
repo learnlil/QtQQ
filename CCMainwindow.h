@@ -1,16 +1,17 @@
 #pragma once
 
-#include <QtWidgets/QWidget>
+#include "basicwindow.h"
 #include "ui_CCMainwindow.h"
 
-class CCMainwindow : public QWidget
+class CCMainwindow : public BasicWindow
 {
     Q_OBJECT
 
 public:
     CCMainwindow(QWidget *parent = nullptr);
     ~CCMainwindow();
-
+    void initControl();
+    
 private:
     Ui::CCMainwindowClass ui;
 };

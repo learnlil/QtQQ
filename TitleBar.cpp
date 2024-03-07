@@ -161,6 +161,8 @@ void TitleBar::paintEvent(QPaintEvent* event)
 	{
 		setFixedWidth(parentWidget()->width());
 	}
+
+	QWidget::paintEvent(event);
 }
 
 //双击响应事件,标题栏双击最大化或者最小化
@@ -179,7 +181,7 @@ void TitleBar::mouseDoubleClickEvent(QMouseEvent* event)
 		}
 	}
 
-	return QWidget::mouseDoubleClickEvent(event);
+	QWidget::mouseDoubleClickEvent(event);
 }
 
 //通过mousePress,mouseMove,mouseRelease事件拖动标题栏实现拖动窗口
@@ -200,7 +202,7 @@ void TitleBar::mousePressEvent(QMouseEvent* event)
 		m_startMovePos = event->globalPos();
 	}
 
-	return QWidget::mousePressEvent(event);
+	QWidget::mousePressEvent(event);
 }
 
 //鼠标移动
@@ -214,7 +216,7 @@ void TitleBar::mouseMoveEvent(QMouseEvent* event)
 		parentWidget()->move(widgetPos.x() + movePoint.x(), widgetPos.y() + movePoint.y());
 	}
 
-	return QWidget::mouseMoveEvent(event);
+	QWidget::mouseMoveEvent(event);
 }
 
 //鼠标释放
