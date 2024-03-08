@@ -1,9 +1,13 @@
 #include "SkinWindow.h"
-
+#include "QClickLabel.h"
+#include "NotifyManager.h"
+#include <QPalette>
 SkinWindow::SkinWindow(QWidget *parent)
 	: BasicWindow(parent)
 {
 	ui.setupUi(this);
+	loadStyleSheet("SkinWindow");
+	setAttribute(Qt::WA_DeleteOnClose);
 	initControl();
 }
 
@@ -21,6 +25,30 @@ void SkinWindow::initControl()
 	};
 	for (int row = 0; row < 3; row++)
 	{
+		for (int column = 0; column < 4; column++)
+		{
+			QClickLabel* label = new QClickLabel(this);
+			label->setCursor(Qt::PointingHandCursor);
+			//lambda
+			connect(label, &QClickLabel::clicked, [row, column, colorList]() {
+				NotifyManager::getInstance()->notifyOtherWindowChangeSkin(colorList.at(row*4+column));
+				});
+			label->setFixedSize(84, 84);
 
+			QPalette palette;
+			palette.setColor(QPalette::Window, colorList.at(row * 4 + column));
+			label->setAutoFillBackground(true);
+			label->setPalette(palette);
+
+			ui.gridLayout->addWidget(label, row, column);
+		}
 	}
+
+	connect(ui.sysmin, SIGNAL(clicked()), this, SLOT(onShowMin()));
+	connect(ui.sysclose, SIGNAL(clicked()), this, SLOT(onShowClose()));
+}
+
+void SkinWindow::onShowClose()
+{
+	close();
 }

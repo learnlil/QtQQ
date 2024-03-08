@@ -92,6 +92,7 @@
     <ClCompile Include="basicwindow.cpp" />
     <ClCompile Include="CommonUtils.cpp" />
     <ClCompile Include="NotifyManager.cpp" />
+    <ClCompile Include="QClickLabel.cpp" />
     <ClCompile Include="SkinWindow.cpp" />
     <ClCompile Include="TitleBar.cpp" />
     <ClCompile Include="UserLogin.cpp" />
@@ -114,6 +115,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonUtils.h" />
+    <QtMoc Include="QClickLabel.h" />
     <QtMoc Include="SkinWindow.h" />
     <QtMoc Include="UserLogin.h" />
   </ItemGroup>

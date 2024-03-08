@@ -8,6 +8,7 @@ class CCMainwindow : public BasicWindow
     Q_OBJECT
 
 public:
+    void initTimer();
     CCMainwindow(QWidget *parent = nullptr);
     ~CCMainwindow();
     void initControl();

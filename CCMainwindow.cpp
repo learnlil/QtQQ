@@ -1,6 +1,8 @@
 #include "CCMainwindow.h"
 #include <QProxyStyle>
 #include <QPainter>
+#include "SkinWindow.h"
+#include <QTimer>
 class CustomProxyStyle :public QProxyStyle
 {
 public:
@@ -18,6 +20,20 @@ public:
     }
 };
 
+void CCMainwindow::initTimer()
+{
+    QTimer* timer = new QTimer(this);
+    timer->setInterval(1000);
+    connect(timer, &QTimer::timeout, [this] {
+        static int level = 0;
+        if (level == 99)
+            level = 0;
+        level++;
+        setLevelPixmap(level);
+        });
+    timer->start();
+}
+
 CCMainwindow::CCMainwindow(QWidget *parent)
     : BasicWindow(parent)
 {
@@ -25,6 +41,7 @@ CCMainwindow::CCMainwindow(QWidget *parent)
     setWindowFlags(windowFlags() | Qt::Tool);
     loadStyleSheet("CCMainWindow");
     initControl();
+    initTimer();
 }
 
 CCMainwindow::~CCMainwindow()
@@ -125,5 +142,10 @@ QWidget* CCMainwindow::addOtherAppExtension(const QString& appPath, const QStrin
 
 void CCMainwindow::onAppIconClicked()
 {
-
+    //判断信号发送者的对象名是否是app_skin
+    if (sender()->objectName() == "app_skin")
+    {
+        SkinWindow* skinWindow = new SkinWindow;
+        skinWindow->show();
+    }
 }

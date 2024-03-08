@@ -58,6 +58,9 @@
     <ClCompile Include="SkinWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="QClickLabel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="TitleBar.h">
@@ -73,6 +76,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="SkinWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="QClickLabel.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

@@ -2,7 +2,7 @@
     font-family: Microsoft YaHei;
 }
 
-QWidget#SkinWindow
+QWidget#SkinWindowClass
 {
     background-color:#ffffff;
     border: 1px solid #cccccc;

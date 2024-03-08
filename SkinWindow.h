@@ -12,6 +12,8 @@ public:
 	~SkinWindow();
 public:
 	void initControl();
+public slots:
+	void onShowClose();
 private:
 	Ui::SkinWindowClass ui;
 };
