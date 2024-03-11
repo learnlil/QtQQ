@@ -7,6 +7,13 @@
 #include "NotifyManager.h"
 #include <QHBoxLayout>
 #include <QEvent>
+#include <QTreeWidgetItem>
+#include <QMouseEvent>
+#include <QApplication>
+#include "RootContatItem.h"
+#include "ContactItem.h"
+#include "WindowManager.h"
+#include "TalkWindowShell.h"
 
 class CustomProxyStyle :public QProxyStyle
 {
@@ -46,6 +53,58 @@ void CCMainwindow::updateSearchStyle()
                 .arg(m_colorBackground.red())
                 .arg(m_colorBackground.green())
                 .arg(m_colorBackground.blue()));
+}
+
+void CCMainwindow::initContactTree()
+{
+    //展开与收缩时的信号
+    connect(ui.treeWidget, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(onItemClicked(QTreeWidgetItem*,int)));
+    connect(ui.treeWidget, SIGNAL(itemExpanded(QTreeWidgetItem*)), this, SLOT(onItemExpanded(QTreeWidgetItem*)));
+    connect(ui.treeWidget, SIGNAL(itemCollapsed(QTreeWidgetItem*)), this, SLOT(onItemCollapsed(QTreeWidgetItem*)));
+    connect(ui.treeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(onItemDoubleClicked(QTreeWidgetItem*,int)));
+
+    //根节点
+    QTreeWidgetItem* pRootGroupItem = new QTreeWidgetItem;
+    pRootGroupItem->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
+    pRootGroupItem->setData(0, Qt::UserRole, 0);//根项数据设置0
+    
+    RootContatItem* pItemName = new RootContatItem(true, ui.treeWidget);
+    
+    QString strGroupName = QString::fromUtf8("RB软工网");
+    pItemName->setText(strGroupName);
+    
+    //插入分组节点
+    ui.treeWidget->addTopLevelItem(pRootGroupItem);
+    ui.treeWidget->setItemWidget(pRootGroupItem, 0, pItemName);
+
+    QStringList sStuClass;//学生班级
+    sStuClass << QString::fromUtf8("RB软工网211");
+    sStuClass << QString::fromUtf8("RB软工网212"); 
+    sStuClass << QString::fromUtf8("RB软工网213");
+    sStuClass << QString::fromUtf8("RB软工网214");
+
+    for (int iIndex = 0; iIndex < sStuClass.length(); iIndex++)
+    {
+        addStuClass(pRootGroupItem, sStuClass.at(iIndex));
+    }
+}
+
+void CCMainwindow::addStuClass(QTreeWidgetItem* pRootGroupItem, const QString& sClass)
+{
+    QTreeWidgetItem* pChild = new QTreeWidgetItem;
+    QPixmap pix = QPixmap(":/Resources/MainWindow/head_mask.png");
+    //添加子节点,子节点数据设置1
+    pChild->setData(0, Qt::UserRole, 1);
+    pChild->setData(0, Qt::UserRole + 1, QString::number((int)pChild));
+
+    ContactItem* pContactItem = new ContactItem(ui.treeWidget);
+    pContactItem->setHeadPixmap(getRoundImage(QPixmap(":/Resources/MainWindow/girl.png"),pix,pContactItem->getHeadLabelSize()));
+    pContactItem->setUserName(sClass);
+
+    pRootGroupItem->addChild(pChild);
+    ui.treeWidget->setItemWidget(pChild, 0, pContactItem);
+
+    m_groupMap.insert(pChild, sClass);
 }
 
 CCMainwindow::CCMainwindow(QWidget *parent)
@@ -88,6 +147,8 @@ void CCMainwindow::initControl()
     ui.bottomLayout_up->addWidget(addOtherAppExtension(":/Resources/MainWindow/app/app_9.png", "app_9"));
     ui.bottomLayout_up->addStretch();
 
+    initContactTree();
+    
     //个性签名
     ui.lineEdit->installEventFilter(this);
     //好友搜索
@@ -202,6 +263,84 @@ bool CCMainwindow::eventFilter(QObject* obj, QEvent* event)
         }
     }
     return false;
+}
+void CCMainwindow::mousePressEvent(QMouseEvent* event)
+{
+    if (qApp->widgetAt(event->pos())!=ui.searchLineEdit && ui.searchLineEdit->hasFocus())
+    {
+        ui.searchLineEdit->clearFocus();
+    }
+    else if (qApp->widgetAt(event->pos()) != ui.lineEdit && ui.lineEdit->hasFocus())
+    {
+        ui.lineEdit->clearFocus();
+    }
+
+    BasicWindow::mousePressEvent(event);
+}
+void CCMainwindow::onItemClicked(QTreeWidgetItem* item, int column)
+{
+    bool bIsChild = item->data(0, Qt::UserRole).toBool();
+    if (!bIsChild)
+    {
+        //未展开则展开
+        item->setExpanded(!item->isExpanded());
+    }
+
+}
+void CCMainwindow::onItemExpanded(QTreeWidgetItem* item)
+{
+    bool bIsChild = item->data(0, Qt::UserRole).toBool();
+    if (!bIsChild)
+    {
+        //dynamic_cast 将基类对象指针(或引用)转换到继承类指针
+        RootContatItem* p_rootItem = dynamic_cast<RootContatItem*>(ui.treeWidget->itemWidget(item, 0));
+        if (p_rootItem)
+        {
+            p_rootItem->setExpanding(true);
+        }
+        
+    }
+}
+
+void CCMainwindow::onItemCollapsed(QTreeWidgetItem* item)
+{
+    bool bIdChild = item->data(0, Qt::UserRole).toBool();
+    if (!bIdChild)
+    {
+        RootContatItem* p_rootItem = dynamic_cast<RootContatItem*>(ui.treeWidget->itemWidget(item, 0));
+        if (p_rootItem)
+        {
+            p_rootItem->setExpanding(false);
+
+        }
+    }
+}
+
+void CCMainwindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
+{
+    bool bIsChild = item->data(0, Qt::UserRole).toBool();
+    if (bIsChild)
+    {
+        QString strGroup = m_groupMap.value(item);
+
+        if (strGroup == QString::fromUtf8("RB软工网211"))
+        {
+            WindowManager::getInstance()->addNewTalkWindow(item->data(0,Qt::UserRole+1).toString(),COMPANY);
+
+        }
+        else if (strGroup == QString::fromUtf8("RB软工网212"))
+        {
+            WindowManager::getInstance()->addNewTalkWindow(item->data(0, Qt::UserRole + 1).toString(), PERSONELGROUP);
+        }
+        else if (strGroup == QString::fromUtf8("RB软工网213"))
+        { 
+            WindowManager::getInstance()->addNewTalkWindow(item->data(0, Qt::UserRole + 1).toString(), MAKETGROUP);
+        } 
+        else if (strGroup == QString::fromUtf8("RB软工网214"))
+        {
+            WindowManager::getInstance()->addNewTalkWindow(item->data(0, Qt::UserRole + 1).toString(), DEVELOPMENT);
+        }
+    }
 }
 
 void CCMainwindow::onAppIconClicked()

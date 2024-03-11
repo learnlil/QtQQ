@@ -67,6 +67,30 @@
     <ClCompile Include="CustomMenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RootContatItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ContactItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TalkWindowShell.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EmotionWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="EmotionLabelItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TalkWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TalkWindowItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="TitleBar.h">
@@ -93,6 +117,30 @@
     <QtMoc Include="CustomMenu.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="RootContatItem.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ContactItem.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="TalkWindowShell.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="EmotionWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="EmotionLabelItem.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="TalkWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="TalkWindowItem.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="WindowManager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonUtils.h">
@@ -104,6 +152,21 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="SkinWindow.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="ContactItem.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="TalkWindowShell.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="EmotionWindow.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="TalkWindow.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="TalkWindowItem.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

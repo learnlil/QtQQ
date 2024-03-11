@@ -3,6 +3,7 @@
 #include "basicwindow.h"
 #include "ui_CCMainwindow.h"
 
+class QTreeWidgetItem;
 
 class CCMainwindow : public BasicWindow
 {
@@ -22,12 +23,21 @@ private:
     void initControl();
     void initTimer();
     void updateSearchStyle();//更新搜索样式
+    void initContactTree();
+    void addStuClass(QTreeWidgetItem* pRootGroupItem, const QString& sClass);
 private:
     void resizeEvent(QResizeEvent* event) override;
     bool eventFilter(QObject* obj, QEvent* event);
+    void mousePressEvent(QMouseEvent* event);
 
 private slots:
+    void onItemClicked(QTreeWidgetItem* item, int column);
+    void onItemExpanded(QTreeWidgetItem* item);
+    void onItemCollapsed(QTreeWidgetItem* item);
+    void onItemDoubleClicked(QTreeWidgetItem* item, int column);
     void onAppIconClicked();
 private:
     Ui::CCMainwindowClass ui;
+
+    QMap<QTreeWidgetItem*, QString> m_groupMap; //所有分组的分组项
 };
