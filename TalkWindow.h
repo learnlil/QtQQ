@@ -17,6 +17,7 @@ public:
 	void setWindowName(const QString& name);
 private slots:
 	void onSendBtnClicked(bool);
+	void onItemDoubleClicked();
 private:
 	void initControl();
 
@@ -26,9 +27,10 @@ private:
 	void initPersonelTalk();
 	void initMaketTalk();
 	void initDevelopTalk();
+	void addPeopInfo(QTreeWidgetItem* pRootGoupItem);
 private:
 	Ui::TalkWindowClass ui;
 	QString m_talkId;
 	GroupType m_groupType;
-
+	QMap<QTreeWidgetItem*, QString> m_groupPeopleMap;//所有分组联系人姓名
 };

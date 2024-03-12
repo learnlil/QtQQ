@@ -100,8 +100,14 @@ void WindowManager::addNewTalkWindow(const QString& uid, GroupType groupType, co
 	}
 	else
 	{
+		//左侧聊天列表设为选中
+		QListWidgetItem* item = m_talkwindowshell->getTalkWindowItemMap().key(widget);
+		item->setSelected(true);
+
+		//设置右侧当前聊天窗口
 		m_talkwindowshell->setCurrentWidget(widget);
 	}
+
 	m_talkwindowshell->show();
 	m_talkwindowshell->activateWindow();
 }

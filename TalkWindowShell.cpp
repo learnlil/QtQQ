@@ -2,6 +2,7 @@
 #include "CommonUtils.h"
 #include "EmotionWindow.h"
 #include "TalkWindow.h"
+#include "TalkWindowItem.h"
 
 #include <QListWidget>
 
@@ -30,11 +31,33 @@ void TalkWindowShell::addTalkWindow(TalkWindow* talkWindow, TalkWindowItem* talk
 
 	aItem->setSelected(true);
 
+	talkWindowItem->setHeadPixmap(":/Resources/MainWindow/girl.png");//设置头像,之后修改
+	ui.listWidget->addItem(aItem);
+	ui.listWidget->setItemWidget(aItem, talkWindowItem);
+
+	onTalkWindowItemClicked(aItem);
+
+	connect(talkWindowItem, &TalkWindowItem::signalCloseClicked,
+		[talkWindowItem, talkWindow, aItem, this]()
+		{
+			m_talkWindowItemMap.remove(aItem);
+			talkWindow->close();
+			ui.listWidget->takeItem(ui.listWidget->row(aItem));
+			delete talkWindowItem;
+			ui.rightStackedWidget->removeWidget(talkWindow);
+			if (ui.rightStackedWidget->count() < 1)
+				close();
+		});
 }
 
 void TalkWindowShell::setCurrentWidget(QWidget* widget)
 {
 	ui.rightStackedWidget->setCurrentWidget(widget);
+}
+
+const QMap<QListWidgetItem*, QWidget*>& TalkWindowShell::getTalkWindowItemMap() const
+{
+	return m_talkWindowItemMap;
 }
 
 void TalkWindowShell::onEmotionBtnClicked(bool)

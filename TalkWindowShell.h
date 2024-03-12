@@ -31,7 +31,7 @@ public:
 public:
 	void addTalkWindow(TalkWindow* talkWindow,TalkWindowItem* talkWindowItem,GroupType gouptype);	//添加新的聊天窗口
 	void setCurrentWidget(QWidget* widget);										//设置当前聊天窗口
-
+	const QMap<QListWidgetItem*, QWidget*>& getTalkWindowItemMap() const;
 private:
 	void initControl();//初始化控件
 
