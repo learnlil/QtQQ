@@ -10,10 +10,13 @@
 #include <QTreeWidgetItem>
 #include <QMouseEvent>
 #include <QApplication>
+#include <QSqlQuery>
 #include "RootContatItem.h"
 #include "ContactItem.h"
 #include "WindowManager.h"
 #include "TalkWindowShell.h"
+
+extern QString gLoginEmployeeID;
 
 class CustomProxyStyle :public QProxyStyle
 {
@@ -46,6 +49,41 @@ void CCMainwindow::initTimer()
     timer->start();
 }
 
+QString CCMainwindow::getHeadPicturePath()
+{
+    QString strPicturePath;
+
+    if (!m_isAccountLogin)   //QQ号登录
+    {
+        QString strSql(QString("SELECT picture FROM tab_employee WHERE employeeID = %1").arg(gLoginEmployeeID));
+        QSqlQuery queryPicture;
+        queryPicture.prepare(strSql);
+        queryPicture.exec();
+        queryPicture.next();
+        
+        strPicturePath = queryPicture.value(0).toString();
+    }
+    else                     //账号登录
+    {
+        QString strSqlProfix(QString("SELECT employeeID FROM tab_accounts WHERE account = %1").arg(gLoginEmployeeID));
+        QSqlQuery queryEmployeeID;
+        queryEmployeeID.prepare(strSqlProfix);
+        queryEmployeeID.exec();
+        queryEmployeeID.next();
+        int employeeID = queryEmployeeID.value(0).toInt();
+        queryEmployeeID.finish();
+
+        QString strSql(QString("SELECT picture FROM tab_employee WHERE employeeID = %1").arg(employeeID));
+        QSqlQuery queryPicture;
+        queryPicture.prepare(strSql);
+        queryPicture.exec();
+        queryPicture.next();
+        strPicturePath = queryPicture.value(0).toString();
+        queryPicture.finish();
+    }
+    return strPicturePath;
+}
+
 void CCMainwindow::updateSearchStyle()
 {
     ui.searchWidget->setStyleSheet(QString("QWidget#searchWidget{background-color:rgba(%1,%2,%3,50);border-bottom:1px solid rgba(%1,%2,%3,30)}\
@@ -67,52 +105,83 @@ void CCMainwindow::initContactTree()
     QTreeWidgetItem* pRootGroupItem = new QTreeWidgetItem;
     pRootGroupItem->setChildIndicatorPolicy(QTreeWidgetItem::ShowIndicator);
     pRootGroupItem->setData(0, Qt::UserRole, 0);//根项数据设置0
-    
     RootContatItem* pItemName = new RootContatItem(true, ui.treeWidget);
-    
+
+    //获取群号ID
+    QString strSqlCode = QString("SELECT departmentID FROM tab_department WHERE departmentName = '%1'").arg(QString::fromUtf8("软工网211群"));
+    QSqlQuery queryCompDepID;
+    queryCompDepID.prepare(strSqlCode);
+    queryCompDepID.exec();
+    queryCompDepID.first();
+    int CompDecpID = queryCompDepID.value(0).toInt();
+    queryCompDepID.finish();
+    //获取QQ登录者所在的群ID
+    strSqlCode = QString("SELECT departmentID FROM tab_employee WHERE employeeID = %1").arg(gLoginEmployeeID);
+    QSqlQuery querySelfDepID;
+    querySelfDepID.prepare(strSqlCode);
+    querySelfDepID.exec();
+    querySelfDepID.first();
+    int SelfDecpID = querySelfDepID.value(0).toInt();
+    querySelfDepID.finish();
+
+
+    //初始化公司群以及登陆者所在的群
+    addStuClass(pRootGroupItem, CompDecpID);
+    addStuClass(pRootGroupItem, SelfDecpID);
+
     QString strGroupName = QString::fromUtf8("RB软工网");
     pItemName->setText(strGroupName);
-    
+
     //插入分组节点
     ui.treeWidget->addTopLevelItem(pRootGroupItem);
     ui.treeWidget->setItemWidget(pRootGroupItem, 0, pItemName);
-
-    QStringList sStuClass;//学生班级
-    sStuClass << QString::fromUtf8("RB软工网211");
-    sStuClass << QString::fromUtf8("RB软工网212"); 
-    sStuClass << QString::fromUtf8("RB软工网213");
-    sStuClass << QString::fromUtf8("RB软工网214");
-
-    for (int iIndex = 0; iIndex < sStuClass.length(); iIndex++)
-    {
-        addStuClass(pRootGroupItem, sStuClass.at(iIndex));
-    }
 }
 
-void CCMainwindow::addStuClass(QTreeWidgetItem* pRootGroupItem, const QString& sClass)
+void CCMainwindow::addStuClass(QTreeWidgetItem* pRootGroupItem,int DepID)
 {
     QTreeWidgetItem* pChild = new QTreeWidgetItem;
     QPixmap pix = QPixmap(":/Resources/MainWindow/head_mask.png");
     //添加子节点,子节点数据设置1
     pChild->setData(0, Qt::UserRole, 1);
-    pChild->setData(0, Qt::UserRole + 1, QString::number((int)pChild));
+    pChild->setData(0, Qt::UserRole + 1, DepID);
 
+    //获取部门头像
+    QPixmap groupPix;
+    QString strSqlCode = QString("SELECT picture FROM tab_department WHERE departmentID = %1").arg(DepID);
+    QSqlQuery queryPicture;
+    queryPicture.prepare(strSqlCode);
+    queryPicture.exec();
+    queryPicture.first();
+    groupPix.load(queryPicture.value(0).toString());
+    queryPicture.finish();
+    //h获取部门名称
+    QString strDepName;
+    strSqlCode = QString("SELECT departmentName FROM tab_department WHERE departmentID = %1").arg(DepID);
+    QSqlQuery queryDepName;
+    queryDepName.prepare(strSqlCode);
+    queryDepName.exec();
+    queryDepName.first();
+    strDepName = queryDepName.value(0).toString();
+    queryDepName.finish();
     ContactItem* pContactItem = new ContactItem(ui.treeWidget);
-    pContactItem->setHeadPixmap(getRoundImage(QPixmap(":/Resources/MainWindow/girl.png"),pix,pContactItem->getHeadLabelSize()));
-    pContactItem->setUserName(sClass);
+    pContactItem->setHeadPixmap(getRoundImage(groupPix,pix,pContactItem->getHeadLabelSize()));
+    pContactItem->setUserName(strDepName);
 
     pRootGroupItem->addChild(pChild);
     ui.treeWidget->setItemWidget(pChild, 0, pContactItem);
 
-    m_groupMap.insert(pChild, sClass);
+ //   m_groupMap.insert(pChild, strDepName);
 }
 
-CCMainwindow::CCMainwindow(QWidget *parent)
+CCMainwindow::CCMainwindow(QString account,bool isAccountLogin,QWidget *parent)
     : BasicWindow(parent)
+    ,m_isAccountLogin(isAccountLogin)
+    ,m_account(account)
 {
     ui.setupUi(this);
     setWindowFlags(windowFlags() | Qt::Tool);
     loadStyleSheet("CCMainWindow");
+    setHeadPixmap(getHeadPicturePath());
     initControl();
     initTimer();
 }
@@ -125,7 +194,7 @@ void CCMainwindow::initControl()
     //取消树获取焦点时绘制的边框
     ui.treeWidget->setStyle(new CustomProxyStyle);
     setLevelPixmap(12);
-    setHeadPixmap(":/Resources/MainWindow/girl.png");
+    //setHeadPixmap(":/Resources/MainWindow/girl.png");
     setStatusMenuIcon(":/Resources/MainWindow/StatusSucceeded.png");
 
     QHBoxLayout* appUpLayout = new QHBoxLayout;
@@ -321,26 +390,28 @@ void CCMainwindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
     bool bIsChild = item->data(0, Qt::UserRole).toBool();
     if (bIsChild)
     {
-        QString strGroup = m_groupMap.value(item);
-
-        if (strGroup == QString::fromUtf8("RB软工网211"))
-        {
-            WindowManager::getInstance()->addNewTalkWindow(item->data(0,Qt::UserRole+1).toString(),COMPANY);
-
-        }
-        else if (strGroup == QString::fromUtf8("RB软工网212"))
-        {
-            WindowManager::getInstance()->addNewTalkWindow(item->data(0, Qt::UserRole + 1).toString(), PERSONELGROUP);
-        }
-        else if (strGroup == QString::fromUtf8("RB软工网213"))
-        { 
-            WindowManager::getInstance()->addNewTalkWindow(item->data(0, Qt::UserRole + 1).toString(), MAKETGROUP);
-        } 
-        else if (strGroup == QString::fromUtf8("RB软工网214"))
-        {
-            WindowManager::getInstance()->addNewTalkWindow(item->data(0, Qt::UserRole + 1).toString(), DEVELOPMENT);
-        }
+        WindowManager::getInstance()->addNewTalkWindow(item->data(0, Qt::UserRole + 1).toString());
     }
+    //    //QString strGroup = m_groupMap.value(item);
+
+    //    if (strGroup == QString::fromUtf8("RB软工网211"))
+    //    {
+    //        WindowManager::getInstance()->addNewTalkWindow(item->data(0,Qt::UserRole+1).toString(),COMPANY);
+
+    //    }
+    //    else if (strGroup == QString::fromUtf8("RB软工网212"))
+    //    {
+    //        WindowManager::getInstance()->addNewTalkWindow(item->data(0, Qt::UserRole + 1).toString(), PERSONELGROUP);
+    //    }
+    //    else if (strGroup == QString::fromUtf8("RB软工网213"))
+    //    { 
+    //        WindowManager::getInstance()->addNewTalkWindow(item->data(0, Qt::UserRole + 1).toString(), MAKETGROUP);
+    //    } 
+    //    else if (strGroup == QString::fromUtf8("RB软工网214"))
+    //    {
+    //        WindowManager::getInstance()->addNewTalkWindow(item->data(0, Qt::UserRole + 1).toString(), DEVELOPMENT);
+    //    }
+    //}
 }
 
 void CCMainwindow::onAppIconClicked()

@@ -16,6 +16,8 @@ private slots:
 
 private:
 	void initControl();
+	bool connectMySql();
+	bool veryfyAccountCode(bool &isAccountLogin,QString &strAccountInput);
 private:
 	Ui::UserLogin ui;
 };

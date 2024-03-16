@@ -1,5 +1,4 @@
 var external0 = null;
-var external = null;
 var external_10001 = null;
 var external_10002 = null;
 var external_10003 = null;
@@ -25,7 +24,6 @@ String.prototype.format = function() {
 new QWebChannel(qt.webChannelTransport,
 	function(channel) {
 		external0 = channel.objects.external0;
-		external = channel.objects.external;
 		external_10001 = channel.objects.external_10001;
 external_10002 = channel.objects.external_10002;
 external_10003 = channel.objects.external_10003;
@@ -41,23 +39,10 @@ external_10009 = channel.objects.external_10009;
 );
 
 function appendHtml0(msg){
-
-	if(external0 && external0.msgRHtmlTmpl)
-	{
-		$("#placeholder").append(external0.msgRHtmlTmpl.format(msg));
-	window.scrollTo(0,document.body.scrollHeight);
-	}
-	else
-	{
-		console.error('我是你爹');
-		console.log(external0);
-		console.log(external0.msgRHtmlTmpl);
-	}
-};
-function recvHtml(msg){
-	$("#placeholder").append(external.msgLHtmlTmpl.format(msg));
+	$("#placeholder").append(external0.msgRHtmlTmpl.format(msg));
 	window.scrollTo(0,document.body.scrollHeight); ;  
 };
+
 function recvHtml_10001(msg){
 	$("#placeholder").append(external_10001.msgLHtmlTmpl.format(msg));
 	window.scrollTo(0,document.body.scrollHeight); ;  

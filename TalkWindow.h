@@ -9,7 +9,7 @@ class TalkWindow : public QWidget
 	Q_OBJECT
 
 public:
-	TalkWindow(QWidget *parent,const QString& uid,GroupType groupType);
+	TalkWindow(QWidget* parent, const QString& uid);//,GroupType groupType);
 	~TalkWindow();
 
 public:
@@ -17,20 +17,23 @@ public:
 	void setWindowName(const QString& name);
 private slots:
 	void onSendBtnClicked(bool);
-	void onItemDoubleClicked();
+	void onItemDoubleClicked(QTreeWidgetItem* item,int column);
 private:
 	void initControl();
-
+	void initGroupTalkStatus();
+	int getCompDepID();
 
 	void initPtoPTalk();
-	void initCompanyTalk();	//初始化各种群聊聊天
-	void initPersonelTalk();
-	void initMaketTalk();
-	void initDevelopTalk();
-	void addPeopInfo(QTreeWidgetItem* pRootGoupItem);
+	void initTalkWindow();
+	//void initCompanyTalk();	//初始化各种群聊聊天
+	//void initPersonelTalk();
+	//void initMaketTalk();
+	//void initDevelopTalk();
+	void addPeopInfo(QTreeWidgetItem* pRootGoupItem,int employeeID);
 private:
 	Ui::TalkWindowClass ui;
 	QString m_talkId;
-	GroupType m_groupType;
+	bool m_isGroupTalk;	//是否为群聊
+	//GroupType m_groupType;
 	QMap<QTreeWidgetItem*, QString> m_groupPeopleMap;//所有分组联系人姓名
 };
