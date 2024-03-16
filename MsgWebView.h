@@ -42,8 +42,8 @@ class MsgWebView  : public QWebEngineView
 
 public:
 	MsgWebView(QWidget *parent);
-	~MsgWebView();
-	void appendMsg(const QString& html);
+	~MsgWebView();	
+	void appendMsg(const QString& html,QString strObj = "0");
 private slots:
 	void onLoadFinished(bool ok);
 private:

@@ -38,6 +38,11 @@ void TalkWindow::setWindowName(const QString& name)
 	ui.nameLabel->setText(name);
 }
 
+QString TalkWindow::getTalkId()
+{
+	return m_talkId;
+}
+
 void TalkWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
 {
 	bool bIsChild = item->data(0, Qt::UserRole).toBool();

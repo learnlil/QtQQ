@@ -44,7 +44,7 @@ public slots:
 	void onEmotionBtnClicked(bool);					//表情按钮点击后执行的槽函数
 
 	//客户端发送Tcp数据(数据,数据类型,文件)
-	void updateSendTcpMsg(QString& strData, int &msgType,QString sFile = "");
+	void updateSendTcpMsg(QString& strData, int &msgType,QString fileName = "");
 private slots:
 	void onTalkWindowItemClicked(QListWidgetItem* item);	//左侧列表点击后执行的槽函数
 	void onEmotionItemClicked(int emotionNum);				//表情被选中

@@ -15,6 +15,7 @@ public:
 public:
 	void addEmotionImage(int emotionNum);
 	void setWindowName(const QString& name);
+	QString getTalkId();
 private slots:
 	void onSendBtnClicked(bool);
 	void onItemDoubleClicked(QTreeWidgetItem* item,int column);
