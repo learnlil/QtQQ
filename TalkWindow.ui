@@ -491,7 +491,7 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QWidget" name="msgWidget" native="true"/>
+            <widget class="MsgWebView" name="msgWidget" native="true"/>
            </item>
           </layout>
          </widget>
@@ -642,7 +642,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QTextEdit" name="textEdit">
+         <widget class="QMsgTextEdit" name="textEdit">
           <property name="contextMenuPolicy">
            <enum>Qt::NoContextMenu</enum>
           </property>
@@ -828,6 +828,19 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QMsgTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header location="global">qmsgtextedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>MsgWebView</class>
+   <extends>QWidget</extends>
+   <header location="global">msgwebview.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

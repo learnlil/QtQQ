@@ -2,6 +2,7 @@
 #include "TalkWindow.h"
 #include "TalkWindowItem.h"
 
+#include <QSqlQueryModel>
 //单例模式.创建全局静态对象
 Q_GLOBAL_STATIC(WindowManager,theInstance)
 
@@ -45,7 +46,12 @@ WindowManager* WindowManager::getInstance()
 	return theInstance();
 }
 
-void WindowManager::addNewTalkWindow(const QString& uid, GroupType groupType, const QString& strPeople)
+TalkWindowShell* WindowManager::getTalkWindowShell()
+{
+	return m_talkwindowshell;
+}
+
+void WindowManager::addNewTalkWindow(const QString& uid)//, GroupType groupType, const QString& strPeople)
 {
 	if (m_talkwindowshell == nullptr)
 	{
@@ -59,10 +65,35 @@ void WindowManager::addNewTalkWindow(const QString& uid, GroupType groupType, co
 	QWidget* widget = findWindowName(uid);
 	if (!widget)
 	{
-		TalkWindow* talkwindow = new TalkWindow(m_talkwindowshell, uid, groupType);
+		TalkWindow* talkwindow = new TalkWindow(m_talkwindowshell, uid);//, groupType);
 		TalkWindowItem* talkwindowItem = new TalkWindowItem(talkwindow);
 
-		switch (groupType) {
+		//判断是群聊还是单聊
+		QSqlQueryModel sqlDepModel;
+		QString strSql = QString("SELECT departmentName,sign FROM tab_department WHERE departmentID = %1").arg(uid);
+		sqlDepModel.setQuery(strSql);
+		int rows = sqlDepModel.rowCount();
+		
+		QString strWindowName, strMsgLabel;
+
+		if (rows == 0)	//单聊
+		{
+			QString sql = QString("SELECT employeeName,employeeSign FROM tab_employee WHERE employeeID = %1").arg(uid);
+			sqlDepModel.setQuery(sql);
+		}
+
+		QModelIndex indexDepIndex, signIndex;
+		indexDepIndex = sqlDepModel.index(0, 0);	//employeeName
+		signIndex = sqlDepModel.index(0, 1);		//employeeSign/sign
+		strWindowName = sqlDepModel.data(signIndex).toString();
+		strMsgLabel = sqlDepModel.data(indexDepIndex).toString();
+
+		talkwindow->setWindowName(strWindowName);//窗口名称
+		talkwindowItem->setMsgLabelContent(strMsgLabel);//左侧联系人文本显示
+		m_talkwindowshell->addTalkWindow(talkwindow, talkwindowItem,uid);
+
+
+		/*switch (groupType) {
 		case COMPANY:
 		{
 			talkwindow->setWindowName(QStringLiteral("软工网212李立群"));
@@ -90,13 +121,13 @@ void WindowManager::addNewTalkWindow(const QString& uid, GroupType groupType, co
 		case PTOP:
 		{
 			talkwindow->setWindowName(QStringLiteral("李在干什么"));
-			talkwindowItem->setMsgLabelContent(QStringLiteral("私聊"));
+			talkwindowItem->setMsgLabelContent(strPeople);
 			break;
 		}
 		default:
 			break;
 		}
-		m_talkwindowshell->addTalkWindow(talkwindow, talkwindowItem, groupType);
+		m_talkwindowshell->addTalkWindow(talkwindow, talkwindowItem, groupType);*/
 	}
 	else
 	{

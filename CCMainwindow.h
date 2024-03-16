@@ -10,7 +10,7 @@ class CCMainwindow : public BasicWindow
     Q_OBJECT
 
 public:
-    CCMainwindow(QWidget *parent = nullptr);
+    CCMainwindow(QString account,bool isAccountLogin,QWidget *parent = nullptr);
     ~CCMainwindow();
     void setUserName(const QString& username);
     void setLevelPixmap(int level);
@@ -22,9 +22,10 @@ public:
 private:
     void initControl();
     void initTimer();
+    QString getHeadPicturePath();
     void updateSearchStyle();//更新搜索样式
     void initContactTree();
-    void addStuClass(QTreeWidgetItem* pRootGroupItem, const QString& sClass);
+    void addStuClass(QTreeWidgetItem* pRootGroupItem, int DepID);
 private:
     void resizeEvent(QResizeEvent* event) override;
     bool eventFilter(QObject* obj, QEvent* event);
@@ -38,6 +39,7 @@ private slots:
     void onAppIconClicked();
 private:
     Ui::CCMainwindowClass ui;
-
-    QMap<QTreeWidgetItem*, QString> m_groupMap; //所有分组的分组项
+    bool m_isAccountLogin;
+    QString m_account;      //bool true 时是账号,false时是qq号
+//    QMap<QTreeWidgetItem*, QString> m_groupMap; //所有分组的分组项
 };

@@ -18,7 +18,8 @@ public:
 	void addWindowName(const QString& qsWindowName,QWidget* qWidget);
 
 	static WindowManager* getInstance();
-	void addNewTalkWindow(const QString& uid,GroupType groupType = COMPANY,const QString& strPeople = "");
+	TalkWindowShell* getTalkWindowShell();
+	void addNewTalkWindow(const QString& uid);//GroupType groupType = COMPANY,const QString& strPeople = "");
 	
 private:
 	TalkWindowShell* m_talkwindowshell;

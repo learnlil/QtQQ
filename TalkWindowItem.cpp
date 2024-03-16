@@ -12,11 +12,11 @@ TalkWindowItem::TalkWindowItem(QWidget *parent)
 TalkWindowItem::~TalkWindowItem()
 {}
 
-void TalkWindowItem::setHeadPixmap(const QString & pixmap)
+void TalkWindowItem::setHeadPixmap(const QPixmap& pixmap)
 {
 	QPixmap mask = QPixmap(":/Resources/MainWindow/head_mask.png");
-	QPixmap head = QPixmap(":/Resources/MainWindow/girl.png");
-	const QPixmap& headpixmap = CommonUtils::getRoundImage(head, mask, ui.headlabel->size());
+	//QPixmap head = QPixmap(":/Resources/MainWindow/girl.png");
+	const QPixmap& headpixmap = CommonUtils::getRoundImage(pixmap, mask, ui.headlabel->size());
 	ui.headlabel->setPixmap(headpixmap);
 
 }
