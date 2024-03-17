@@ -16,6 +16,7 @@
 #include "WindowManager.h"
 #include "TalkWindowShell.h"
 
+QString gstrLoginHeadPath;
 extern QString gLoginEmployeeID;
 
 class CustomProxyStyle :public QProxyStyle
@@ -81,6 +82,8 @@ QString CCMainwindow::getHeadPicturePath()
         strPicturePath = queryPicture.value(0).toString();
         queryPicture.finish();
     }
+
+    gstrLoginHeadPath = strPicturePath;
     return strPicturePath;
 }
 

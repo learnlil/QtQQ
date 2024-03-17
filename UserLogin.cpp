@@ -127,6 +127,13 @@ void UserLogin::onLoginButtonClicked()
 		ui.editUserAccount->setText("");
 		return;
 	}
+
+	//更新登录状态为登录
+	QString strSqlStatus = QString("UPDATE tab_employee SET online = 2 WHERE employeeID = %1").arg(gLoginEmployeeID);
+	QSqlQuery sqlStatus;
+	sqlStatus.prepare(strSqlStatus);
+	sqlStatus.exec();
+
 	close();
 	CCMainwindow* mainwindow = new CCMainwindow(strAccount,isAccountLogin);
 	mainwindow->show();

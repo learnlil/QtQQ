@@ -3,11 +3,15 @@
 #include "ContactItem.h"
 #include "CommonUtils.h"
 #include "WindowManager.h"
+#include "SendFile.h"
+
 #include <QToolTip>
 #include <QFile>
 #include <QMessageBox>
 #include <QSqlQueryModel>
 #include <QSqlQuery>
+
+extern QString gLoginEmployeeID;
 
 TalkWindow::TalkWindow(QWidget *parent,const QString& uid)//,GroupType grouptype)
 	: QWidget(parent)
@@ -48,6 +52,11 @@ void TalkWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
 	bool bIsChild = item->data(0, Qt::UserRole).toBool();
 	if (bIsChild)
 	{
+		QString talkId = item->data(0, Qt::UserRole + 1).toString();
+		if (talkId == gLoginEmployeeID)
+		{
+			return;
+		}
 		QString strPeopleName = m_groupPeopleMap.value(item);
 		WindowManager::getInstance()->addNewTalkWindow(item->data(0, Qt::UserRole + 1).toString());//, PTOP, strPeopleName);
 	}
@@ -68,7 +77,8 @@ void TalkWindow::initControl()
 
 	connect(ui.faceBtn, SIGNAL(clicked(bool)), parent(), SLOT(onEmotionBtnClicked(bool)));
 	connect(ui.sendBtn, SIGNAL(clicked(bool)), this, SLOT(onSendBtnClicked(bool)));
-	
+	connect(ui.fileopenBtn, SIGNAL(clicked(bool)), this, SLOT(onFileOpenBtnClicked(bool)));
+
 	connect(ui.treeWidget, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this, SLOT(onItemDoubleClicked(QTreeWidgetItem*, int)));
 
 	if (m_isGroupTalk)
@@ -201,6 +211,9 @@ void TalkWindow::initTalkWindow()
 	{
 		QModelIndex modelIndex = queryEmployeeModel.index(i,0);
 		int employeeID = queryEmployeeModel.data(modelIndex).toInt();
+
+
+		
 		//添加子节点
 		addPeopInfo(pRootItem,employeeID);
 	}
@@ -361,6 +374,12 @@ void TalkWindow::addPeopInfo(QTreeWidgetItem* pRootGroupItem,int employeeID)
 
 }
  
+void TalkWindow::onFileOpenBtnClicked(bool)
+{
+	SendFile* sendFile = new SendFile(this);
+	sendFile->show();
+}
+
 void TalkWindow::onSendBtnClicked(bool)
 {
 	if (ui.textEdit->toPlainText().isEmpty())

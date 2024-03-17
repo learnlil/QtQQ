@@ -4,18 +4,27 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QWebChannel>
+#include <QSqlQueryModel>
 
 #include "TalkWindowShell.h"
 #include "WindowManager.h"
-MsgHtmlObj::MsgHtmlObj(QObject* parent) :QObject(parent)
+
+extern QString gstrLoginHeadPath;
+
+MsgHtmlObj::MsgHtmlObj(QObject* parent,QString msgLPicPath) 
+	:QObject(parent)
 {
+	m_msgLPicPath = msgLPicPath;
 	initHtmlTmpl();
 }
 
 void MsgHtmlObj::initHtmlTmpl()
 {
 	m_msgLHtmlTmpl = getMsgTmplHtml("msgleftTmpl");
+	m_msgLHtmlTmpl.replace("%1", m_msgLPicPath);
+
 	m_msgRHtmlTmpl = getMsgTmplHtml("msgrightTmpl");
+	m_msgRHtmlTmpl.replace("%1", gstrLoginHeadPath);
 }
 
 QString MsgHtmlObj::getMsgTmplHtml(const QString& code)
@@ -38,20 +47,78 @@ QString MsgHtmlObj::getMsgTmplHtml(const QString& code)
 
 MsgWebView::MsgWebView(QWidget *parent)
 	: QWebEngineView(parent)
+	,m_channel(new QWebChannel(this))
 {
 	MsgWebPage* page = new MsgWebPage(this);
 	setPage(page);
 
-	QWebChannel* channel = new QWebChannel(this);
 	m_msgHtmlObj = new MsgHtmlObj(this);
-	channel->registerObject("external",m_msgHtmlObj);
-	this->page()->setWebChannel(channel);
+	m_channel->registerObject("external0",m_msgHtmlObj);
 	
 	TalkWindowShell* talkWindowShell = WindowManager::getInstance()->getTalkWindowShell();
 	connect(this, &MsgWebView::signalSendMsg, talkWindowShell, &TalkWindowShell::updateSendTcpMsg);
 	//test初始化收信息网页页面是否加载成功	成功
-	connect(this, &QWebEngineView::loadFinished, this, &MsgWebView::onLoadFinished);
+	//connect(this, &QWebEngineView::loadFinished, this, &MsgWebView::onLoadFinished);
 
+	//当前正构建的聊天窗口的ID(QQ号)
+	QString strTalkId = WindowManager::getInstance()->getCreatingTalkId();
+
+	QSqlQueryModel queryEmployeeModel;
+	QString strEmployeeID, strPicturePath;
+	QString strExternal;
+	bool isGroupTalk = false;
+
+	//获取总群ID
+	queryEmployeeModel.setQuery(QString("SELECT departmentID FROM tab_department WHERE departmentName = '%1'").arg(QStringLiteral("软工网211群")));
+	QModelIndex companyIndex = queryEmployeeModel.index(0, 0);
+	QString strCompanyID = queryEmployeeModel.data(companyIndex).toString();
+
+	if (strTalkId == strCompanyID)//总群群聊
+	{
+		isGroupTalk = true;
+		queryEmployeeModel.setQuery("SELECT employeeID,picture FROM tab_employee WHERE status = 1");
+	}
+	else
+	{
+		if (strTalkId.length() == 4)//其他群聊
+		{
+			isGroupTalk = true;
+			queryEmployeeModel.setQuery(QString("SELECT employeeID,picture FROM tab_employee WHERE status = 1 AND departmentID = %1").arg(strTalkId));
+		}
+		else//单独聊天
+		{
+			queryEmployeeModel.setQuery(QString("SELECT picture FROM tab_employee WHERE status = 1 AND employeeID = %1").arg(strTalkId));
+		
+			QModelIndex index = queryEmployeeModel.index(0, 0);
+			strPicturePath = queryEmployeeModel.data(index).toString();
+
+			strExternal = "external_" + strTalkId;
+			MsgHtmlObj* msgHtmlObj = new MsgHtmlObj(this, strPicturePath);
+			m_channel->registerObject(strExternal,msgHtmlObj);
+		}
+	}
+
+	if (isGroupTalk)
+	{
+		QModelIndex employeeModelIndex, pictureModelIndex;
+		int rows = queryEmployeeModel.rowCount();
+		for (int i = 0; i < rows; i++)
+		{
+			employeeModelIndex = queryEmployeeModel.index(i, 0);
+			pictureModelIndex = queryEmployeeModel.index(i, 1);
+
+			strEmployeeID = queryEmployeeModel.data(employeeModelIndex).toString();
+			strPicturePath = queryEmployeeModel.data(pictureModelIndex).toString();
+
+			strExternal = "external_" + strEmployeeID;
+
+			MsgHtmlObj* msgHtmlObj = new MsgHtmlObj(this, strPicturePath);
+			m_channel->registerObject(strExternal, msgHtmlObj);
+		}
+	}
+
+
+	this->page()->setWebChannel(m_channel);
 	//初始化收信息网页页面
 	this->load(QUrl("qrc:/Resources/MainWindow/MsgHtml/msgTmpl.html"));
 }

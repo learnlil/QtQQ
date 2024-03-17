@@ -8,6 +8,9 @@
 #include <QApplication>
 #include <QmouseEvent>
 #include <QScreen>
+#include <QSqlQuery>
+
+extern QString gLoginEmployeeID;
 
 BasicWindow::BasicWindow(QWidget *parent)
 	: QDialog(parent)
@@ -141,6 +144,12 @@ void BasicWindow::onShowNormal(bool)
 
 void BasicWindow::onShowQuit(bool)
 {
+	//更新登录状态为离线
+	QString strSqlStatus = QString("UPDATE tab_employee SET online = 1 WHERE employeeID = %1").arg(gLoginEmployeeID);
+	QSqlQuery sqlStatus;
+	sqlStatus.prepare(strSqlStatus);
+	sqlStatus.exec();
+
 	QApplication::quit();
 }
 

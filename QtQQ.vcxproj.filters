@@ -97,6 +97,12 @@
     <ClCompile Include="MsgWebView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SendFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ReceiveFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="TitleBar.h">
@@ -153,6 +159,12 @@
     <QtMoc Include="MsgWebView.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="SendFile.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ReceiveFile.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonUtils.h">
@@ -179,6 +191,12 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="TalkWindowItem.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="SendFile.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="ReceiveFile.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

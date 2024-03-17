@@ -3,13 +3,19 @@
 #include "EmotionWindow.h"
 #include "TalkWindow.h"
 #include "TalkWindowItem.h"
+#include "WindowManager.h"
+#include "ReceiveFile.h"
 
 #include <QListWidget>
 #include <QSqlQueryModel>
 #include <QMessageBox>
 #include <QFile>
+#include <QSqlQuery>
 
+QString gfileName;			//文件名称
+QString gfileData;			//文件内容
 extern QString gLoginEmployeeID;
+const int gudpPort = 6666;
 
 TalkWindowShell::TalkWindowShell(QWidget *parent)
 	: BasicWindow(parent)
@@ -18,7 +24,7 @@ TalkWindowShell::TalkWindowShell(QWidget *parent)
 	setAttribute(Qt::WA_DeleteOnClose);
 	initControl();
 	initTcpSocket();
-
+	initUdpSocket();
 	
 
 	QFile file("Resources/MainWindow/MsgHtml/msgtmpl.js");
@@ -140,6 +146,19 @@ void TalkWindowShell::initTcpSocket()
 	m_tcpClientSocket->connectToHost("127.0.0.1", gTcpPort);
 }
 
+void TalkWindowShell::initUdpSocket()
+{
+	m_udpReceiver = new QUdpSocket(this);
+	for (quint16 port = gudpPort; port < gudpPort + 200; port++)
+	{
+		if (m_udpReceiver->bind(port, QUdpSocket::ShareAddress))
+		{
+			break;
+		}
+	}
+	connect(m_udpReceiver, &QUdpSocket::readyRead, this, &TalkWindowShell::processPendingData);
+}
+
 void TalkWindowShell::getEmployeesID(QStringList& employeesList)
 {
 	QSqlQueryModel queryModel;
@@ -255,6 +274,55 @@ bool TalkWindowShell::createJSFile(QStringList& employeesList)
 	}
 }
 
+void TalkWindowShell::handleReceiveMsg(int senderEmployeeID, int msgType, QString strMsg)
+{
+	QMsgTextEdit msgTextEdit;
+	msgTextEdit.setText(strMsg);
+
+	if (msgType == 1)//文本信息
+	{
+		msgTextEdit.document()->toHtml();
+	}
+	else if (msgType == 0)//表情信息
+	{
+		const int emotionWidth = 3;
+		int emotionNum = strMsg.length() / emotionWidth;
+		for (int i = 0; i < emotionNum; i++)
+		{
+			msgTextEdit.addEmotionUrl(strMsg.mid(i * emotionWidth, emotionWidth).toInt());
+		}
+	}
+
+	QString html = msgTextEdit.document()->toHtml();
+
+	//文本Html如果没有字体则添加字体
+	if (!html.contains(".png") && !html.contains("</span>"))
+	{
+		QString fontHtml;
+		QFile file(":/Resources/MainWindow/MsgHtml/msgFont.txt");
+		if (file.open(QIODevice::ReadOnly))
+		{
+			fontHtml = file.readAll();
+			fontHtml.replace("%1", strMsg);
+			file.close();
+		}
+		else
+		{
+			QMessageBox::information(this, QString::fromUtf8("提示"),
+				QString::fromUtf8("未找到文件msgFont"));
+			return;
+		}
+		if (!html.contains(fontHtml))
+		{
+			html.replace(strMsg, fontHtml);
+		}
+	}
+
+	TalkWindow* talkWindow = dynamic_cast<TalkWindow*>(ui.rightStackedWidget->currentWidget());
+	talkWindow->ui.msgWidget->appendMsg(html, QString::number(senderEmployeeID));
+
+}
+
 //文本数据包格式:群聊标志+发信息员工QQ号+收信息员工QQ号(群QQ号)+信息类型+数据长度+数据
 //表情数据包格式:群聊标志+发信息员工QQ号+收信息员工QQ号(群QQ号)+信息类型+表情个数+images+数据
 //msgType 0表情 1文本信息 2文件信息
@@ -276,31 +344,32 @@ void TalkWindowShell::updateSendTcpMsg(QString& strData, int& msgType, QString f
 		strGroupFlag = "0";
 	}
 
-	int dataLength = strData.length();
-	const int sourceDataLenth = dataLength;
+	int nstrDataLength = strData.length();
+	int dataLength = QString::number(nstrDataLength).length();
+//	const int sourceDataLenth = dataLength;
 	QString strDataLength;
 	if (msgType == 1)//发送文本信息
 	{
 		//文本信息的长度约定为5位
 		if (dataLength == 1)//hello 5==1 50 == 2 500 == 3 5000 == 4 50000 == 5
 		{
-			strDataLength = "0000" + QString::number(sourceDataLenth);
+			strDataLength = "0000" + QString::number(nstrDataLength);
 		}
 		else if (dataLength == 2)
 		{
-			strDataLength = "000" + QString::number(sourceDataLenth);
+			strDataLength = "000" + QString::number(nstrDataLength);
 		}
 		else if (dataLength == 3)
 		{
-			strDataLength = "00" + QString::number(sourceDataLenth);
+			strDataLength = "00" + QString::number(nstrDataLength);
 		}
 		else if (dataLength == 4)
 		{
-			strDataLength = "0" + QString::number(sourceDataLenth);
+			strDataLength = "0" + QString::number(nstrDataLength);
 		}
 		else if (dataLength == 5)
 		{
-			strDataLength =  QString::number(sourceDataLenth);
+			strDataLength =  QString::number(nstrDataLength);
 		}
 		else
 		{
@@ -339,4 +408,216 @@ void TalkWindowShell::onEmotionItemClicked(int emotionNum)
 		currentTalkWindow->addEmotionImage(emotionNum);
 	}
 
+}
+
+/*
+	数据包格式
+	文本数据包格式:群聊标志+发信息QQ号+收信息QQ号(个人或群)+信息类型(1)+数据长度+数据
+	表情数据包格式:群聊标志+发信息QQ号+收信息QQ号(个人或群)+信息类型(0)+表情个数+images+表情名称
+	文件数据包格式:群聊标志+发信息QQ号+收信息QQ号(个人或群)+信息类型(2)+文件字节数+bytes+文件名+data_begin+文件数据
+
+	群聊标志一位,0单聊,1群聊
+	为1时没有收信息个人QQ号,而是收信息群QQ号
+	为0时没有收信息群QQ号,而是收信息个人QQ号
+	信息类型一位,0表情信息,1文本信息,2文件信息
+	
+	QQ号占5位,群QQ号4位,数据长度占5位,表情名称3位
+	
+	群聊文本信息:1100012001100005helloworld 表示QQ10001向群2001发送文本,长度为00005 ,helloword
+	单聊图片信息:0100011000201images060            表示QQ10001向人10002发送一个表情,60.png
+	群聊文件信息:1100052000210bytestest.txtdata_beginhelloworld
+											表示QQ10005向群2000发送文件信息,文件内容长度10文件名test.txt,内容helloworld
+	
+	群聊文本信息解析: 1 10001 2001  1 00005 helloworld
+	单聊图片信息解析: 0 10001 10002 0 1 images 060
+	群聊文件信息解析: 1 10005 2000  10 bytes test.txt data_begin helloworld
+*/
+void TalkWindowShell::processPendingData()
+{
+	//端口中有未处理的数据
+	while (m_udpReceiver->hasPendingDatagrams())
+	{
+		const static int groupFlagWidth = 1;		//群聊标志占位
+		const static int groupWidth = 4;			//群QQ号宽度
+		const static int employeeWidth = 5;			//人QQ号宽度
+		const static int msgTypeWidth = 1;			//信息类型宽度
+		const static int msgLengthWidth = 5;		//文本信息长度的宽度
+		const static int pictureWidth = 3;			//表情图片的宽度
+
+		//读取udp数据
+		QByteArray btData;
+		btData.resize(m_udpReceiver->pendingDatagramSize());
+		m_udpReceiver->readDatagram(btData.data(), btData.size());
+
+		QString strData = btData.data();
+		QString strWindowID;	//聊天窗口ID,群聊则是群号,单聊则是员工QQ号
+		QString strSendEmployeeID, strReceiveEmployeeID;	//发送即接收端QQ号
+		QString strMsg;			//数据
+
+		int msgLen;				//数据长度
+		int msgType;			//数据类型
+
+		strSendEmployeeID = strData.mid(groupFlagWidth, employeeWidth);
+
+		//自己发的信息不做处理
+		if (strSendEmployeeID == gLoginEmployeeID)
+		{
+			return;
+		}
+
+		if (btData[0] == '1')//群聊
+		{
+			//群QQ号
+			strWindowID = strData.mid(groupFlagWidth + employeeWidth, groupWidth);
+
+			QChar cMsgType = btData[groupFlagWidth + employeeWidth + groupWidth];
+			if (cMsgType == '1')//文本信息
+			{
+				msgType = 1;
+				msgLen = strData.mid(groupFlagWidth + employeeWidth
+					+ groupWidth + msgTypeWidth, msgLengthWidth).toInt();
+				strMsg = strData.mid(groupFlagWidth + employeeWidth
+					+ groupWidth + msgTypeWidth+msgLengthWidth,msgLen);
+			}
+			else if (cMsgType == '0')//表情信息
+			{
+				msgType = 0;
+				int posImages = strData.indexOf("images");
+				strMsg = strData.right(strData.length() - posImages - QString("images").length());
+
+			}
+			else if(cMsgType == '2')//文件信息
+			{
+				msgType = 2;
+				int bytesWidth = QString("bytes").length();
+				int posBytes = strData.indexOf("bytes");
+				int posData_begin = strData.indexOf("data_begin");
+				//获取文件名称
+				QString fileName = strData.mid(posBytes + bytesWidth, posData_begin - posBytes - bytesWidth);
+				gfileName = fileName;
+
+				//文件内容
+				int dataLengthWidth;
+				int posData = posData_begin+QString("data_begin").length();
+				strMsg = strData.mid(posData);
+				gfileData = strMsg;
+
+				//根据employeeID获取发送者姓名
+				QString sender;
+				int employeeID = strSendEmployeeID.toInt();
+				QString sqlQueryGroupName(QString("SELECT employeeName FROM tab_employee WHERE employeeID = %1")
+					.arg(employeeID));
+				QSqlQuery querySenderName;
+				querySenderName.prepare(sqlQueryGroupName);
+				querySenderName.exec();
+				if (querySenderName.first())
+				{
+					sender = querySenderName.value(0).toString();
+				}
+
+				ReceiveFile* receiveFile = new ReceiveFile(this);
+				connect(receiveFile, &ReceiveFile::refuseFile, [this]() {
+					return;
+				});
+				QString msgLabel = QString::fromUtf8("收到来自") + sender
+					+ QString::fromUtf8("发来的文件,是否接收?");
+				receiveFile->setMsg(msgLabel);
+				receiveFile->show();
+			}
+		}
+		else//单聊
+		{
+
+			strReceiveEmployeeID = strData.mid(groupFlagWidth + employeeWidth, employeeWidth);
+			strWindowID = strReceiveEmployeeID;
+
+			//不是发给自己的信息不做处理
+			if (strReceiveEmployeeID != gLoginEmployeeID)
+			{
+				return;
+			}
+
+			//获取信息类型
+			QChar cMsgType = btData[groupFlagWidth + employeeWidth + employeeWidth];
+			if (cMsgType == '1')//文本信息
+			{
+				msgType = 1;
+
+				//文本信息长度
+				msgLen = strData.mid(groupFlagWidth + employeeWidth + employeeWidth
+					+ msgTypeWidth, msgLengthWidth).toInt();
+				//文本信息
+				strMsg = strData.mid(groupFlagWidth + employeeWidth + employeeWidth
+					+ msgTypeWidth + msgLengthWidth, msgLen);
+			}
+			else if (cMsgType == '0')//表情信息
+			{
+				msgType = 0;
+				int posImages = strData.indexOf("images");
+				int imagesWidth = QString("images").length();
+				strMsg = strData.mid(posImages + imagesWidth);
+
+			}
+			else if (cMsgType == '2')//文件信息
+			{
+				msgType = 2;
+
+				int bytesWidth = QString("bytes").length();
+				int posBytes = strData.indexOf("bytes");
+				int data_beginWidth = QString("data_begin").length();
+				int posData_begin = strData.indexOf("data_begin");
+
+				//文件名称
+				QString fileName = strData.mid(posBytes + bytesWidth, posData_begin - posBytes - bytesWidth);
+				gfileName = fileName;
+				//文件内容
+				strMsg = strData.mid(posData_begin + data_beginWidth);
+				gfileData = strMsg;
+
+				//根据employeeID获取发送者姓名
+				QString sender;
+				int employeeID = strSendEmployeeID.toInt();
+				QString sqlQueryGroupName(QString("SELECT employeeName FROM tab_employee WHERE employeeID = %1")
+					.arg(employeeID));
+				QSqlQuery querySenderName;
+				querySenderName.prepare(sqlQueryGroupName);
+				querySenderName.exec();
+				if (querySenderName.first())
+				{
+					sender = querySenderName.value(0).toString();
+				}
+
+				ReceiveFile* receiveFile = new ReceiveFile(this);
+				connect(receiveFile, &ReceiveFile::refuseFile, [this]() {
+					return;
+					});
+				QString msgLabel = QString::fromUtf8("收到来自") + sender
+					+ QString::fromUtf8("发来的文件,是否接收?");
+				receiveFile->setMsg(msgLabel);
+				receiveFile->show();
+			}
+		}
+
+		//将聊天窗口设为活动的窗口
+		QWidget* widget = WindowManager::getInstance()->findWindowName(strWindowID);
+		if (widget)	//聊天窗口存在
+		{
+			this->setCurrentWidget(widget);
+
+			//同步激活左侧聊天窗口
+			QListWidgetItem* item = m_talkWindowItemMap.key(widget);
+			item->setSelected(true);
+		}
+		else//聊天窗口未打开
+		{
+			return; 
+		}
+		//文件信息另做处理
+		if (msgType != 2)
+		{
+			int sendEmployeeID = strSendEmployeeID.toInt();
+			handleReceiveMsg(sendEmployeeID, msgType, strMsg);
+
+		}
+	}
 }

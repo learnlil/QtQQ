@@ -17,6 +17,7 @@ public:
 	void setWindowName(const QString& name);
 	QString getTalkId();
 private slots:
+	void onFileOpenBtnClicked(bool);
 	void onSendBtnClicked(bool);
 	void onItemDoubleClicked(QTreeWidgetItem* item,int column);
 private:
@@ -37,4 +38,5 @@ private:
 	bool m_isGroupTalk;	//是否为群聊
 	//GroupType m_groupType;
 	QMap<QTreeWidgetItem*, QString> m_groupPeopleMap;//所有分组联系人姓名
+	friend class TalkWindowShell;
 };

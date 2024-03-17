@@ -5,13 +5,14 @@
 
 #include <QMap>
 #include<QTcpSocket>
+#include <QUdpSocket>
 
 class TalkWindow;
 class TalkWindowItem;
 class QListWidgetItem;
 class EmotionWindow;
 
-const int gTcpPort = 5566;
+const int gTcpPort = 8888;
 
 enum GroupType
 {
@@ -37,8 +38,10 @@ public:
 private:
 	void initControl();//初始化控件
 	void initTcpSocket();	//初始化TCP
+	void initUdpSocket();	//初始化UDP
 	void getEmployeesID(QStringList& employeesList);	//获取所有员工QQ号
 	bool createJSFile(QStringList& employeesList);
+	void handleReceiveMsg(int senderEmployeeID,int msgType,QString strMsg);
 
 public slots:
 	void onEmotionBtnClicked(bool);					//表情按钮点击后执行的槽函数
@@ -48,7 +51,7 @@ public slots:
 private slots:
 	void onTalkWindowItemClicked(QListWidgetItem* item);	//左侧列表点击后执行的槽函数
 	void onEmotionItemClicked(int emotionNum);				//表情被选中
-
+	void processPendingData();								//处理广播收到的数据
 private:
 	Ui::TalkWindowShellClass ui;
 
@@ -57,5 +60,6 @@ private:
 
 private:
 	QTcpSocket* m_tcpClientSocket;	//Tcp客户端
+	QUdpSocket* m_udpReceiver;      //udp接收端
 	
 };
