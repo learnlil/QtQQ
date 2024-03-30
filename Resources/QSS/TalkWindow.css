@@ -56,18 +56,7 @@ border-top-right-radius:0px;
 border-bottom-left-radius:4px;
 }
 
-QPushButton#rightSpliterBtn {
-   border-image: url(:Resources/MainWindow/aio_splitbutton_right_normal.png); 
-   border-width:0px;
-}
-QPushButton#rightSpliterBtn:hover {
-   border-image: url(:Resources/MainWindow/aio_splitbutton_right_hover.png); 
-   border-width:0px;
-}
-QPushButton#rightSpliterBtn:pressed {
-   border-image: url(:Resources/MainWindow/aio_splitbutton_right_down.png); 
-   border-width:0px;
-}
+
 
 QToolButton#closeBtn {
    background-color: rgb(141, 210, 235);
@@ -285,49 +274,6 @@ QPushButton#tclosebtn:pressed {
 QLabel#msgLabel{
 	color:#333333;
 	font-size:12px;
-}
-
-QMenu#senMenu {
-	border-image:url(:Resources/MainWindow/menu_bkg.gft.png);
-	border-width: 2px;
-}
-
-QMenu#senMenu::item {
-	padding: 4px 12px 4px 26px;
-    background-color: #ffffff;
-	height:24px;
-}
-
-QMenu#senMenu::item:hover {
-    background-color: rgb(51, 127, 209);
-}
-
-QMenu#senMenu::item:selected {
-    background-color: rgb(51, 127, 209);
-}
-
-QMenu#senMenu::icon{
-	width: 24px;
-    height: 24px;
-}
-
-QMenu#senMenu::indicator:exclusive:checked {
-    image:url(:Resources/MainWindow/menu_check.png);
-}
-
-QMenu#senMenu::indicator:exclusive:checked:selected {
-    image:url(:Resources/MainWindow/menu_check.png);
-}
-
-QMenu#senMenu::separator {
-    height: 1px;
-    background: #eeeeee;
-}
-
-QMenu#senMenu::indicator {
-	padding: 0px 0px 0px 6px;
-    width: 16px;
-    height: 16px;
 }
 
 QComboBox{

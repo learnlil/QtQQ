@@ -18,7 +18,7 @@ public:
 private:
 	void initBackgroundColor();					//初始化背景颜色
 protected:
-	void paintEvent(QPaintEvent*);				//绘制事件
+	void paintEvent(QPaintEvent* event);		//绘制事件
 	void mousePressEvent(QMouseEvent* event);	//鼠标事件
 	void mouseMoveEvent(QMouseEvent* event);	//鼠标移动事件
 	void mouseReleaseEvent(QMouseEvent* event); //鼠标释放事件

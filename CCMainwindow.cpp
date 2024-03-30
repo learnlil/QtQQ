@@ -1,23 +1,26 @@
 #include "CCMainwindow.h"
-#include <QProxyStyle>
-#include <QPainter>
+#include "RootContatItem.h"
+#include "ContactItem.h"
+#include "WindowManager.h"
+#include "TalkWindowShell.h"
 #include "SkinWindow.h"
-#include <QTimer>
 #include "SysTray.h"
 #include "NotifyManager.h"
+
+#include <QProxyStyle>
+#include <QPainter>
+#include <QTimer>
 #include <QHBoxLayout>
 #include <QEvent>
 #include <QTreeWidgetItem>
 #include <QMouseEvent>
 #include <QApplication>
 #include <QSqlQuery>
-#include "RootContatItem.h"
-#include "ContactItem.h"
-#include "WindowManager.h"
-#include "TalkWindowShell.h"
+
 
 QString gstrLoginHeadPath;
-extern QString gLoginEmployeeID;
+extern QString gLoginEmployeeID;        
+
 
 class CustomProxyStyle :public QProxyStyle
 {
@@ -27,6 +30,7 @@ public:
     {
         if (element == PE_FrameFocusRect)
         {
+            //不执行任何操作来取消焦点选中时出现的边框
             return;
         }
         else
@@ -35,6 +39,7 @@ public:
         }
     }
 };
+
 
 void CCMainwindow::initTimer()
 {
@@ -128,10 +133,11 @@ void CCMainwindow::initContactTree()
     querySelfDepID.finish();
 
 
-    //初始化公司群以及登陆者所在的群
+    //初始化班级总群以及登陆者所在的群
+    //可优化,加入多个班群时循环addStuClass
     addStuClass(pRootGroupItem, CompDecpID);
     addStuClass(pRootGroupItem, SelfDecpID);
-
+    
     QString strGroupName = QString::fromUtf8("RB软工网");
     pItemName->setText(strGroupName);
 
@@ -148,7 +154,7 @@ void CCMainwindow::addStuClass(QTreeWidgetItem* pRootGroupItem,int DepID)
     pChild->setData(0, Qt::UserRole, 1);
     pChild->setData(0, Qt::UserRole + 1, DepID);
 
-    //获取部门头像
+    //获取头像
     QPixmap groupPix;
     QString strSqlCode = QString("SELECT picture FROM tab_department WHERE departmentID = %1").arg(DepID);
     QSqlQuery queryPicture;
@@ -157,7 +163,7 @@ void CCMainwindow::addStuClass(QTreeWidgetItem* pRootGroupItem,int DepID)
     queryPicture.first();
     groupPix.load(queryPicture.value(0).toString());
     queryPicture.finish();
-    //h获取部门名称
+    //获取班级名称
     QString strDepName;
     strSqlCode = QString("SELECT departmentName FROM tab_department WHERE departmentID = %1").arg(DepID);
     QSqlQuery queryDepName;
@@ -364,7 +370,7 @@ void CCMainwindow::onItemExpanded(QTreeWidgetItem* item)
     bool bIsChild = item->data(0, Qt::UserRole).toBool();
     if (!bIsChild)
     {
-        //dynamic_cast 将基类对象指针(或引用)转换到继承类指针
+        //dynamic_cast这个转换能成功是因为之前将root添加到treeWidget中了
         RootContatItem* p_rootItem = dynamic_cast<RootContatItem*>(ui.treeWidget->itemWidget(item, 0));
         if (p_rootItem)
         {
@@ -383,7 +389,6 @@ void CCMainwindow::onItemCollapsed(QTreeWidgetItem* item)
         if (p_rootItem)
         {
             p_rootItem->setExpanding(false);
-
         }
     }
 }

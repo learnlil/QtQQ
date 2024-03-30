@@ -100,43 +100,6 @@ void WindowManager::addNewTalkWindow(const QString& uid)//, GroupType groupType,
 		talkwindow->setWindowName(strWindowName);//窗口名称
 		talkwindowItem->setMsgLabelContent(strMsgLabel);//左侧联系人文本显示
 		m_talkwindowshell->addTalkWindow(talkwindow, talkwindowItem,uid);
-
-
-		/*switch (groupType) {
-		case COMPANY:
-		{
-			talkwindow->setWindowName(QStringLiteral("软工网212李立群"));
-			talkwindowItem->setMsgLabelContent(QStringLiteral("软工网212群"));
-			break;
-		}
-		case PERSONELGROUP:
-		{
-			talkwindow->setWindowName(QStringLiteral("富强,民主,文明,和谐"));
-			talkwindowItem->setMsgLabelContent(QStringLiteral("富强群"));
-			break;
-		}
-		case MAKETGROUP:
-		{
-			talkwindow->setWindowName(QStringLiteral("今天学习努把力,明天努力找工作"));
-			talkwindowItem->setMsgLabelContent(QStringLiteral("steam"));
-			break;
-		}
-		case DEVELOPMENT:
-		{
-			talkwindow->setWindowName(QStringLiteral("编程语言狗都不学"));
-			talkwindowItem->setMsgLabelContent(QStringLiteral("学习群"));
-			break;
-		}
-		case PTOP:
-		{
-			talkwindow->setWindowName(QStringLiteral("李在干什么"));
-			talkwindowItem->setMsgLabelContent(strPeople);
-			break;
-		}
-		default:
-			break;
-		}
-		m_talkwindowshell->addTalkWindow(talkwindow, talkwindowItem, groupType);*/
 	}
 	else
 	{

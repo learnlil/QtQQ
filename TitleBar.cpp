@@ -156,7 +156,6 @@ void TitleBar::paintEvent(QPaintEvent* event)
 	painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
 
 	//窗口最大化或者还原后窗口长度改变时,标题栏相应的改变
-	//parentWidget()返回父部件
 	if (width() != parentWidget()->width())
 	{
 		setFixedWidth(parentWidget()->width());

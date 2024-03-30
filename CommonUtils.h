@@ -4,6 +4,7 @@
 #include <QSize>
 #include <QProxyStyle>
 
+
 //改变默认部件风格
 class CustomProxyStyle :public QProxyStyle
 {

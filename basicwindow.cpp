@@ -6,7 +6,7 @@
 #include <QStyleOption>
 #include <QPainter>
 #include <QApplication>
-#include <QmouseEvent>
+#include <QmouseEvent> 
 #include <QScreen>
 #include <QSqlQuery>
 
@@ -89,7 +89,7 @@ void BasicWindow::initBackgroundColor()
 	style()->drawPrimitive(QStyle::PE_Widget, &opt, &p, this);
 }
 
-//子类化部件时需要重写绘图事件设置背景图
+//子类化部件时重写绘图事件设置背景图
 void BasicWindow::paintEvent(QPaintEvent* event)
 {
 	initBackgroundColor();

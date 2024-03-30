@@ -40,7 +40,7 @@ void TalkWindowItem::initControl()
 
 void TalkWindowItem::enterEvent(QEnterEvent* event)
 {
-	ui.tclosebtn->setVisible(true);
+	ui.tclosebtn->setVisible(true); 
 	__super::enterEvent(event);
 }
 

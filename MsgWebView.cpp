@@ -12,9 +12,8 @@
 extern QString gstrLoginHeadPath;
 
 MsgHtmlObj::MsgHtmlObj(QObject* parent,QString msgLPicPath) 
-	:QObject(parent)
+	:QObject(parent), m_msgLPicPath(msgLPicPath)
 {
-	m_msgLPicPath = msgLPicPath;
 	initHtmlTmpl();
 }
 
@@ -44,7 +43,10 @@ QString MsgHtmlObj::getMsgTmplHtml(const QString& code)
 	file.close();
 	return strData;
 }
-
+/// <summary>
+/// 网页初始化QWeb,然后使用MsgHtmlObj来拼接网页内容,通过MsgWebView来显示内嵌的网页
+/// </summary>
+/// <param name="parent"></param>
 MsgWebView::MsgWebView(QWidget *parent)
 	: QWebEngineView(parent)
 	,m_channel(new QWebChannel(this))
@@ -53,6 +55,9 @@ MsgWebView::MsgWebView(QWidget *parent)
 	setPage(page);
 
 	m_msgHtmlObj = new MsgHtmlObj(this);
+	//绑定,JS文件中external0和m_msgHtmlObj关联起来,相当于 auto &external0 = m_msgHtmlObj.
+	//再在js代码中external0 = channel.objects.external0;这样就可以在本地的js文件中调用m_msgHtmlObj了
+	//并且在msgHtmlObj中的预定义,再js代码中可以调用external0.msgRHtmlTmpl
 	m_channel->registerObject("external0",m_msgHtmlObj);
 	
 	TalkWindowShell* talkWindowShell = WindowManager::getInstance()->getTalkWindowShell();
@@ -120,6 +125,7 @@ MsgWebView::MsgWebView(QWidget *parent)
 
 	this->page()->setWebChannel(m_channel);
 	//初始化收信息网页页面
+	//之后js代码执行插入消息操作把消息插入到此html中并且刷新页面
 	this->load(QUrl("qrc:/Resources/MainWindow/MsgHtml/msgTmpl.html"));
 }
 
@@ -137,7 +143,8 @@ void MsgWebView::appendMsg(const QString & html, QString strObj)
 	bool isImageMsg = false;
 	QString strData;//发送的数据 ,表情序号按照三位数,不足左侧补零 009 066 557
 
-
+	//格式:  text:[文字消息]
+	//		 img :[表情路径]
 	for (int i = 0; i < msgList.size(); i++)
 	{
 		if (msgList.at(i).at(0) == "img")
@@ -170,6 +177,7 @@ void MsgWebView::appendMsg(const QString & html, QString strObj)
 			msgType = 0;//表情标识
 			imageNum++;
 
+			//如果表情是添加到资源文件的话,在html中瑶去掉qrc前缀
 			if (imagePath.left(3) == "qrc")
 			{
 				pixmap.load(imagePath.mid(3));
@@ -194,11 +202,27 @@ void MsgWebView::appendMsg(const QString & html, QString strObj)
 	const QString& Msg = QJsonDocument(msgObj).toJson(QJsonDocument::Compact);
 	if (strObj == "0")//发信息
 	{
+		/*发消息调用的js函数
+		function appendHtml0(msg){
+			if(external0 && external0.msgRHtmlTmpl)
+			{
+				$("#placeholder").append(external0.msgRHtmlTmpl.format(msg));
+				window.scrollTo(0,document.body.scrollHeight);
+			}
+			else
+			{
+				console.error('报错');
+				console.log(external0);
+				console.log(external0.msgRHtmlTmpl);
+			}
+		};
+		*/
 		this->page()->runJavaScript(QString("appendHtml0(%1)").arg(Msg));
 		if (isImageMsg)
 		{
 			strData = QString::number(imageNum) + "images"+strData;
 		}
+		//发信号执行updateSendTcpMsg,封装消息
 		emit signalSendMsg(strData, msgType);
 	}
 	else//接收信息
@@ -209,16 +233,37 @@ void MsgWebView::appendMsg(const QString & html, QString strObj)
 	//	emit signalSendMsg(strData, msgType);
 }
 
+
+/*
+<?xml version="1.0"?>
+<!DOCTYPE HTML SYSTEM "http://www.w3.org/TR/REC-html40/strict.dtd" PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+	<head>
+		<meta content="1" name="qrichtext"/>
+		<meta charset="utf-8"/>
+		<style type="text/css"> p, li { white-space: pre-wrap; } hr { height: 1px; border-width: 0; } li.unchecked::marker { content: "\2610"; } li.checked::marker { content: "\2612"; } </style>
+	</head>
+	<body style=" font-family:'Microsoft YaHei'; font-size:9pt; font-weight:400; font-style:normal;">
+		<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">
+			<span style=" font-size:10pt;">12312234</span>
+		</p>
+	</body>
+</html>
+*/
 QList<QStringList> MsgWebView::parseHtml(const QString & html)
 {
 	QDomDocument doc;
 	doc.setContent(html);
-	const QDomElement& root = doc.documentElement();//节点元素
-	const QDomElement& node = root.firstChildElement("body");
+	const QDomElement& root = doc.documentElement();//节点元素获得<html>...</html>
+	const QDomElement& node = root.firstChildElement("body");//获得html中<body>...</body>,并不包含<body>
 
 	return parseDocNode(node);
 }
-
+/*
+<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">
+	<span style=" font-size:10pt;">12312234</span>
+</p>
+*/
 QList<QStringList> MsgWebView::parseDocNode(const QDomNode& node)
 {
 	QList<QStringList> attribute;
@@ -243,6 +288,8 @@ QList<QStringList> MsgWebView::parseDocNode(const QDomNode& node)
 				attributeList << "text" << element.text();
 				attribute << attributeList;
 			}
+			//判断有没有孩子节点
+			//第一轮调用只处理<p>标签,需要的是<p>下的<span>标签里的内容,递归插入<p>标签内容
 			if (node.hasChildNodes())
 			{
 				attribute<<parseDocNode(node);
@@ -257,7 +304,7 @@ bool MsgWebPage::acceptNavigationRequest(const QUrl& url, NavigationType type, b
 {
 	//仅接受qrc:/*.html
 	if (url.scheme() == QString("qrc"))//判断url类型
-	{
+	{ 
 		return true;
 	}else
 		return false;

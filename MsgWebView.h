@@ -12,6 +12,13 @@ class MsgHtmlObj : public QObject
 public:
 	MsgHtmlObj(QObject* parent,QString msgLPicPath = "");	//发信息来的人的头像路径
 
+	////替换初始化
+	//QString msgLHtml() const { return m_msgLHtmlTmpl; }
+	//QString msgRHtml() const { return m_msgRHtmlTmpl; }
+	//
+	//void setMsgLHtmlTmpl(const QString& tmpl) { m_msgLHtmlTmpl = tmpl; emit signalMsgHtml(tmpl); }
+	//void setMsgRHtmlTmpl(const QString& tmpl) { m_msgRHtmlTmpl = tmpl; emit signalMsgHtml(tmpl); }
+
 signals:
 	void signalMsgHtml(const QString& html);
 

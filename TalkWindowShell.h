@@ -14,14 +14,6 @@ class EmotionWindow;
 
 const int gTcpPort = 8888;
 
-enum GroupType
-{
-	COMPANY = 0,	//总群
-	PERSONELGROUP,	//人事
-	DEVELOPMENT,	//研发
-	MAKETGROUP,		//市场
-	PTOP			//单聊
-};
 
 class TalkWindowShell : public BasicWindow
 {

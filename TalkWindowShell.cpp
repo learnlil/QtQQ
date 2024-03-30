@@ -73,7 +73,7 @@ void TalkWindowShell::addTalkWindow(TalkWindow* talkWindow, TalkWindowItem* talk
 	QImage img;
 	img.load(sqlDepModel.data(index).toString());
 
-	talkWindowItem->setHeadPixmap(QPixmap::fromImage(img));//(":/Resources/MainWindow/girl.png");//设置头像,之后修改
+	talkWindowItem->setHeadPixmap(QPixmap::fromImage(img));//(":/Resources/MainWindow/girl.png");//设置头像
 	
 	ui.listWidget->addItem(aItem);
 	ui.listWidget->setItemWidget(aItem, talkWindowItem);
@@ -164,7 +164,7 @@ void TalkWindowShell::getEmployeesID(QStringList& employeesList)
 	QSqlQueryModel queryModel;
 	queryModel.setQuery("SELECT employeeID FROM tab_employee WHERE status=1");
 	
-	//返回模型的总行数(员工的总数)
+	//返回模型的总行数(人员的总数)
 	int employeesNum = queryModel.rowCount();
 	QModelIndex index;
 	for (int i = 0; i < employeesNum; ++i)
@@ -323,9 +323,10 @@ void TalkWindowShell::handleReceiveMsg(int senderEmployeeID, int msgType, QStrin
 
 }
 
-//文本数据包格式:群聊标志+发信息员工QQ号+收信息员工QQ号(群QQ号)+信息类型+数据长度+数据
-//表情数据包格式:群聊标志+发信息员工QQ号+收信息员工QQ号(群QQ号)+信息类型+表情个数+images+数据
 //msgType 0表情 1文本信息 2文件信息
+//strData:	3images099100098  msgType 0	 ""			表情信息三个表情编号分别为099,100,098
+//			这是一条消息	  msgType 1  ""			文字消息,发送文字"这是一条消息"
+//			文件内容		  msgType 2  "文件名字"	文件信息,发送文件
 void TalkWindowShell::updateSendTcpMsg(QString& strData, int& msgType, QString fileName)
 {
 	//获取当前活动聊天窗口
@@ -346,8 +347,7 @@ void TalkWindowShell::updateSendTcpMsg(QString& strData, int& msgType, QString f
 
 	int nstrDataLength = strData.length();
 	int dataLength = QString::number(nstrDataLength).length();
-//	const int sourceDataLenth = dataLength;
-	QString strDataLength;
+	QString strDataLength="";
 	if (msgType == 1)//发送文本信息
 	{
 		//文本信息的长度约定为5位
@@ -375,19 +375,19 @@ void TalkWindowShell::updateSendTcpMsg(QString& strData, int& msgType, QString f
 		{
 			QMessageBox::information(this,QString::fromUtf8( "提示"),QString::fromUtf8( "发送的文本数据长度过长"));
 		}
-		//文本数据包格式:群聊标志+发信息员工QQ号+收信息员工QQ号(群QQ号)+信息类型+数据长度+数据
+		//文本数据包格式:群聊标志+发信息QQ号+收信息QQ号(群QQ号)+信息类型+数据长度+数据
 		strSend = strGroupFlag + gLoginEmployeeID + talkId + "1" + strDataLength + strData;
 	}
 	//表情信息
 	else if (msgType == 0)
 	{
-		//表情数据包格式:群聊标志+发信息员工QQ号+收信息员工QQ号(群QQ号)+信息类型+表情个数+images+数据
+		//表情数据包格式:群聊标志+发信息QQ号+收信息QQ号(群QQ号)+信息类型+表情个数+images+数据
 		strSend = strGroupFlag + gLoginEmployeeID + talkId + "0" + strDataLength + strData;
 	}
 	//文件信息
 	else if (msgType == 2)
 	{
-		//文件数据包格式:群聊标志+发信息员工QQ号+收信息员工QQ号(群QQ号)+信息类型+文件长度+"bytes"+文件名称+"data_begin"+文件内容
+		//文件数据包格式:群聊标志+发信息QQ号+收信息QQ号(群QQ号)+信息类型+文件长度+"bytes"+文件名称+"data_begin"+文件内容
 		//QByteArray
 		QByteArray bt = strData.toUtf8();
 		QString strLength = QString::number(bt.length());
@@ -455,7 +455,7 @@ void TalkWindowShell::processPendingData()
 		QString strMsg;			//数据
 
 		int msgLen;				//数据长度
-		int msgType;			//数据类型
+		int msgType=1;			//数据类型
 
 		strSendEmployeeID = strData.mid(groupFlagWidth, employeeWidth);
 
@@ -525,11 +525,11 @@ void TalkWindowShell::processPendingData()
 				receiveFile->show();
 			}
 		}
-		else//单聊
+		else if (btData[0] == '0')//单聊
 		{
 
 			strReceiveEmployeeID = strData.mid(groupFlagWidth + employeeWidth, employeeWidth);
-			strWindowID = strReceiveEmployeeID;
+			strWindowID = strSendEmployeeID;
 
 			//不是发给自己的信息不做处理
 			if (strReceiveEmployeeID != gLoginEmployeeID)

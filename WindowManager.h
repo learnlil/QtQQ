@@ -20,10 +20,10 @@ public:
 	static WindowManager* getInstance();
 	TalkWindowShell* getTalkWindowShell();
 	QString getCreatingTalkId();
-	void addNewTalkWindow(const QString& uid);//GroupType groupType = COMPANY,const QString& strPeople = "");
+	void addNewTalkWindow(const QString& uid);//GroupType groupType = FirstClass,const QString& strPeople = "");
 	
 private:
-	TalkWindowShell* m_talkwindowshell;
+	TalkWindowShell* m_talkwindowshell;	//多个窗口中的当前窗口
 	QMap<QString, QWidget*> m_windowMap;
 	QString m_strCreatingTalkId = "";	//正在创建的聊天窗口(QQ号)
 };

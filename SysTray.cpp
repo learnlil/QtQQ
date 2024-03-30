@@ -14,7 +14,7 @@ SysTray::~SysTray()
 void SysTray::initSystemTray()
 {
 
-	setToolTip(QStringLiteral("QQ-软工网"));
+	setToolTip(QString::fromUtf8("QQ-软工网"));
 	setIcon(QIcon(":/Resources/MainWindow/app/logo.ico"));
 	connect(this, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(onIconActivated(QSystemTrayIcon::ActivationReason)));
 

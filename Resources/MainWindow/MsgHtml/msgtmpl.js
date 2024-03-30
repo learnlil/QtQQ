@@ -49,7 +49,7 @@ function appendHtml0(msg){
 	}
 	else
 	{
-		console.error('我是你爹');
+		console.error('报错');
 		console.log(external0);
 		console.log(external0.msgRHtmlTmpl);
 	}
